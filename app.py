@@ -21,11 +21,13 @@ def generate_scope_text(sqft, frequency, notes):
     - Notes: {notes}
     Keep it concise, formal, and persuasive.
     """
-    response = openai.ChatCompletion.create(
+    
+    response = openai.chat.completions.create(
         model="gpt-4",
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.5,
+        temperature=0.5
     )
+    
     return response.choices[0].message.content
 
 @app.route("/")
