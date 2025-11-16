@@ -36,7 +36,7 @@ story.append(Spacer(1, 12))
 
 
 story.append(Paragraph(f"Prepared for: {client_name}", styles['Normal']))
-story.append(Paragraph(f"From: {business_name}", styles['Normal'])))
+story.append(Paragraph(f"From: {business_name}", styles['Normal']))
 story.append(Spacer(1, 12))
 
 
