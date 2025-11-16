@@ -4,10 +4,29 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 import tempfile
+import os
+import openai
 
+
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 app = Flask(__name__)
 
+def generate_scope_text(sqft, frequency, notes):
+    prompt = f"""
+    Generate a professional commercial cleaning proposal section for a client.
+    Include cleaning plan, suggested frequency, and notes based on:
+    - Square Footage: {sqft}
+    - Frequency: {frequency}
+    - Notes: {notes}
+    Keep it concise, formal, and persuasive.
+    """
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.5,
+    )
+    return response.choices[0].message.content
 
 @app.route("/")
 def index():
@@ -72,6 +91,11 @@ def generate():
   story.append(Paragraph(f"<b>Notes / Special Requirements:</b>", styles['Heading2']))
   story.append(Paragraph(notes, styles['Normal']))
   story.append(Spacer(1, 24))
+
+  scope_text = generate_scope_text(sqft, frequency, notes)
+  story.append(Paragraph("<b>Scope of Work:</b>", styles['Heading2']))
+  story.append(Paragraph(scope_text, styles['Normal']))
+  story.append(Spacer(1, 12))
 
 
   # Footer / Call to Action
