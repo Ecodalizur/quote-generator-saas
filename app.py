@@ -55,9 +55,9 @@ def generate():
   
   
   with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-  doc = SimpleDocTemplate(tmp.name, pagesize=letter)
-  doc.build(story)
-  return send_file(tmp.name, as_attachment=True, download_name="proposal.pdf")
+    doc = SimpleDocTemplate(tmp.name, pagesize=letter)
+    doc.build(story)
+    return send_file(tmp.name, as_attachment=True, download_name="proposal.pdf")
 
 
 if __name__ == '__main__':
