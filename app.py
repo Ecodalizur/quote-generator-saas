@@ -23,7 +23,7 @@ def generate_scope_text(sqft, frequency, notes):
     """
     
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.5,
     )
