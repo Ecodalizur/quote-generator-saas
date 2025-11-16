@@ -1,17 +1,9 @@
 from flask import Flask, render_template, request, send_file
-from weasyprint import HTML
-import tempfile
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.pagesizes import letter
 
 
-app = Flask(__name__)
-
-
-@app.route("/")
-def index():
-return render_template("index.html")
-
-
-@app.route("/generate", methods=["POST"])
 def generate():
 business_name = request.form.get("business_name")
 client_name = request.form.get("client_name")
@@ -25,38 +17,29 @@ base_rate = 0.12
 estimated_cost = float(sqft) * base_rate
 
 
-pdf_html = f"""
-<html>
-<body style='font-family: Arial, sans-serif; padding: 40px;'>
-<h1>Cleaning Service Proposal</h1>
-<p><strong>Prepared for:</strong> {client_name}</p>
-<p><strong>From:</strong> {business_name}</p>
+styles = getSampleStyleSheet()
+story = []
 
 
-<h2>Site Details</h2>
-<p>{site_details}</p>
-<p><strong>Square Footage:</strong> {sqft}</p>
-<p><strong>Service Frequency:</strong> {frequency}</p>
-
-
-<h2>Proposed Pricing</h2>
-<p>Estimated monthly cost: <strong>${estimated_cost:,.2f}</strong></p>
-
-
-<h2>Notes / Special Requirements</h2>
-<p>{notes}</p>
-
-
-<hr>
-<p>This is an automatically generated demo proposal.</p>
-</body>
-</html>
-"""
+story.append(Paragraph(f"<b>Cleaning Service Proposal</b>", styles['Title']))
+story.append(Spacer(1, 12))
+story.append(Paragraph(f"Prepared for: {client_name}", styles['Normal']))
+story.append(Paragraph(f"From: {business_name}", styles['Normal']))
+story.append(Spacer(1, 12))
+story.append(Paragraph(f"<b>Site Details</b>", styles['Heading2']))
+story.append(Paragraph(site_details, styles['Normal']))
+story.append(Paragraph(f"Square Footage: {sqft}", styles['Normal']))
+story.append(Paragraph(f"Service Frequency: {frequency}", styles['Normal']))
+story.append(Spacer(1, 12))
+story.append(Paragraph(f"<b>Estimated Monthly Cost: ${estimated_cost:,.2f}</b>", styles['Heading2']))
+story.append(Spacer(1, 12))
+story.append(Paragraph(f"<b>Notes:</b> {notes}", styles['Normal']))
 
 
 with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-HTML(string=pdf_html).write_pdf(tmp.name)
-return send_file(tmp.name, as_attachment=True, download_name="proposal.pdf")
+doc = SimpleDocTemplate(tmp.name, pagesize=letter)
+doc.build(story)
+return send_file(tmp.name, as_attachment=True, download_name="proposal.pdf")(tmp.name, as_attachment=True, download_name="proposal.pdf")
 
 
 if __name__ == '__main__':
